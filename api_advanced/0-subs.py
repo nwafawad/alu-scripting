@@ -2,22 +2,17 @@
 """
 Reddit API: number_of_subscribers
 
-PEP 8–compliant implementation that queries the Reddit API
-and returns total subscribers for a given subreddit.
+This module defines a function that queries the Reddit API and returns
+the total number of subscribers for a given subreddit.
 """
 
 import requests
+import sys
 
 
 def number_of_subscribers(subreddit):
     """
     Return the total number of subscribers for a subreddit, or 0 if invalid.
-
-    Args:
-        subreddit (str): Subreddit name (e.g., "python").
-
-    Returns:
-        int: Subscriber count, or 0 for invalid/redirected responses.
     """
     if not isinstance(subreddit, str) or not subreddit:
         return 0
@@ -41,5 +36,14 @@ def number_of_subscribers(subreddit):
     except ValueError:
         return 0
 
-    # Extract subscribers from JSON safely
     return int(data.get("data", {}).get("subscribers", 0))
+
+
+if __name__ == "__main__":
+    """
+    Entry point for command-line execution.
+    """
+    if len(sys.argv) < 2:
+        print("Usage: ./0-subs.py <subreddit>")
+    else:
+        print("{:d}".format(number_of_subscribers(sys.argv[1])))
