@@ -2,13 +2,15 @@
 """
 Reddit API: number_of_subscribers
 
-This module defines a function that queries the Reddit API and returns
-the total number of subscribers for a given subreddit.
 """
 
 import requests
 import sys
 
+"""
+This module defines a function that queries the Reddit API and returns
+the total number of subscribers for a given subreddit.
+"""
 
 def number_of_subscribers(subreddit):
     """
