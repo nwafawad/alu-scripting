@@ -1,48 +1,30 @@
 #!/usr/bin/python3
 """
-Reddit API: number_of_subscribers
-
-This module defines a function that queries the Reddit API and returns
-the total number of subscribers for a given subreddit.
+0-subs.py
+Function to query the Reddit API and return the number of subscribers
+for a given subreddit.
 """
 
 import requests
-import sys
+
 
 def number_of_subscribers(subreddit):
     """
-    Return the total number of subscribers for a subreddit, or 0 if invalid.
+    Returns the number of subscribers for a given subreddit.
+    If the subreddit is invalid, returns 0.
     """
-    if not isinstance(subreddit, str) or not subreddit:
+    if subreddit is None or not isinstance(subreddit, str):
         return 0
 
     url = f"https://www.reddit.com/r/{subreddit}/about.json"
-    headers = {
-        "User-Agent": "alu-scripting-task0:nawaf/1.0 (contact: example@example.com)"
-    }
+    headers = {"User-Agent": "alu-scripting:sub_count:v1.0 (by /u/yourusername)"}
 
     try:
-        # Do not follow redirects to avoid search-result fallbacks
-        resp = requests.get(url, headers=headers, allow_redirects=False, timeout=10)
-    except requests.RequestException:
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        if response.status_code == 200:
+            data = response.json().get("data", {})
+            return data.get("subscribers", 0)
+        else:
+            return 0
+    except Exception:
         return 0
-
-    if resp.status_code != 200:
-        return 0
-
-    try:
-        data = resp.json()
-    except ValueError:
-        return 0
-
-    return int(data.get("data", {}).get("subscribers", 0))
-
-
-if __name__ == "__main__":
-    """
-    Entry point for command-line execution.
-    """
-    if len(sys.argv) < 2:
-        print("Usage: ./0-subs.py <subreddit>")
-    else:
-        print("{:d}".format(number_of_subscribers(sys.argv[1])))
