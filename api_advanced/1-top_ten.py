@@ -5,30 +5,48 @@ import requests
 
 
 def top_ten(subreddit):
-    """Main function"""
-    URL = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
+    """
+    Queries the Reddit API and prints the titles of the first 10 hot posts.
+    If not a valid subreddit, prints None.
+    """
+    # Reddit API endpoint
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    
+    # Custom User-Agent is required to avoid "Too Many Requests" (429) errors
+    headers = {"User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/custom_user)"}
+    
+    # Parameters for the API request
+    params = {"limit": 10}
 
-    HEADERS = {"User-Agent": "PostmanRuntime/7.35.0"}
     try:
-        RESPONSE = requests.get(URL, headers=HEADERS, allow_redirects=False)
+        # allow_redirects=False is crucial.
+        # Invalid subreddits redirect to a search page (status 302),
+        # which we must treat as an invalid subreddit.
+        response = requests.get(url, headers=headers, params=params,
+                                allow_redirects=False)
 
-        # Check if response is a redirect (invalid subreddit)
-        if RESPONSE.status_code in [301, 302, 303, 307, 308]:
-            print("OK")
+        # Check for success. If status is 404 or 302 (redirect), it's invalid.
+        if response.status_code != 200:
+            print(None)
             return
 
-        # Check if request was successful
-        if RESPONSE.status_code != 200:
-            print("OK")
+        # Parse JSON
+        results = response.json().get("data")
+        
+        # Double check that 'children' exists in the data
+        if not results or "children" not in results:
+            print(None)
             return
 
-        HOT_POSTS = RESPONSE.json().get("data").get("children")
-        [print(post.get('data').get('title')) for post in HOT_POSTS]
-        print("OK")
+        children = results.get("children")
+        
+        # Loop through and print titles
+        for post in children:
+            print(post.get("data").get("title"))
+
     except Exception:
-        print("OK")
+        print(None)
 
 
 if __name__ == "__main__":
-    # Example usage - you can change this to any subreddit
     top_ten("python")
